@@ -1,0 +1,33 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: authentication-mtls
+  namespace: bookstore-servicemesh
+spec:
+  mtls:
+    mode: STRICT
+---
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: authentication-jwt-token
+  namespace: bookstore-servicemesh
+spec:
+  jwtRules:
+    - issuer: "taosoft@gmail.com"
+      # Envoy默认只认“Bearer”作为JWT前缀，之前其他地方用的都是小写，这里专门兼容一下
+      fromHeaders:
+        - name: Authorization
+          prefix: "bearer "
+      jwks: |
+        {
+            "keys": [
+                {
+                  "kty": "RSA",
+                  "kid": "bookstore-jwt-kid",
+                  "n": "jIll4alwYmgQtmJsGJy9x_nGY_LupXy4sLVerftPuMU4cQTiSe2uaDQ_JM2U6EFwSXcj_b_xjc0yWftFmH4nA_UeXvVIO_yeOb646o7GprUq-Vy17BAIGT1JMvgEb48YBjmmRS2Jra1zNkOYR5uT_oO9aszr3Zu4ea8eeSmh-ndrsI-srYlH7QN26K0Z1UoDuQemEVv8ZksbXIX2dLeQIwoC_nCxDHCBfixhmxWt7GBvftOJW_gj_1SuiPMo2hYXoV-9sWnJOMOIyFayQZtvQeVDgqAAc9e1Powla0EmZInybueK_sgqsp3zYgOq-fpmDa_mZtPeHReqehrm51xRxw",
+                  "e": "AQAB"
+                }
+            ]
+        }
+      forwardOriginalToken: true
